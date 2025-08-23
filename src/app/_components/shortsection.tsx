@@ -1,10 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
+import { useState, useEffect } from "react";
 
 export default function ShortSection() {
   const videos = [
@@ -15,8 +11,35 @@ export default function ShortSection() {
     "/Video-6.mp4",
   ];
 
-  const prevRef = useRef(null);
-  const nextRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [itemsToShow, setItemsToShow] = useState(3);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setItemsToShow(3);
+      } else if (window.innerWidth >= 768) {
+        setItemsToShow(2);
+      } else {
+        setItemsToShow(1);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : videos.length - itemsToShow));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev < videos.length - itemsToShow ? prev + 1 : 0));
+  };
+
+  const maxIndex = videos.length - itemsToShow;
 
   return (
     <section id="curtos" className="py-10">
@@ -25,43 +48,53 @@ export default function ShortSection() {
         Curtos engraçados e também dinâmicos
       </p>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Swiper
-          modules={[Navigation]}
-          onBeforeInit={(swiper) => {
-            if (typeof swiper.params.navigation !== "boolean") {
-              const navigation = swiper.params.navigation;
-              if (navigation) {
-                navigation.prevEl = prevRef.current;
-                navigation.nextEl = nextRef.current;
-              }
-            }
-          }}
-          spaceBetween={15}
-          slidesPerView={1}
-          breakpoints={{
-            768: { slidesPerView: 2 },
-            1024: { slidesPerView: 3 },
-          }}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center items-center">
+        {/* Botão anterior */}
+        <button
+          onClick={handlePrev}
+          className="absolute left-0 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 transition z-10"
+          disabled={currentIndex === 0}
         >
-          {videos.map((url, index) => (
-            <SwiperSlide key={index}>
-              <div className="relative aspect-[9/16] w-[355px] rounded-xl overflow-hidden shadow-lg bg-black mx-auto">
-                <video
-                  src={url}
-                  className="w-full h-full object-cover"
-                  controls
-                  playsInline
-                />
+          <svg
+            className="w-6 h-6 text-gray-800"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        {/* Carrossel de vídeos */}
+        <div className="flex overflow-hidden w-full mx-4">
+          <div
+            className="flex transition-transform duration-500 ease-in-out"
+            style={{ transform: `translateX(-${(currentIndex * 100) / itemsToShow}%)` }}
+          >
+            {videos.map((video, index) => (
+              <div
+                key={index}
+                className="flex-none px-2"
+                style={{ width: `${100 / itemsToShow}%` }}
+              >
+                <div className="relative aspect-[9/16] rounded-xl overflow-hidden shadow-lg bg-black">
+                  <video
+                    src={video}
+                    className="w-full h-full object-cover"
+                    controls
+                    playsInline
+                  />
+                </div>
               </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+            ))}
+          </div>
+        </div>
 
-        {/* ... botões de navegação ... */}
-        <div
-          ref={prevRef}
-          className="absolute left-0 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 transition cursor-pointer z-10"
+        {/* Botão próximo */}
+        <button
+          onClick={handleNext}
+          className="absolute right-0 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 transition z-10"
+          disabled={currentIndex >= maxIndex}
         >
           <svg
             className="w-6 h-6 text-gray-800"
@@ -69,33 +102,9 @@ export default function ShortSection() {
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-        </div>
-
-        <div
-          ref={nextRef}
-          className="absolute right-0 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 transition cursor-pointer z-10"
-        >
-          <svg
-            className="w-6 h-6 text-gray-800"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </div>
+        </button>
       </div>
     </section>
   );

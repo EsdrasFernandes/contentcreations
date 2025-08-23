@@ -22,14 +22,14 @@ export default function Hero() {
       {/* Botões */}
       <div className="flex gap-4 flex-wrap justify-center">
         <Link
-          href="#Youtube" 
+          href="#youtube" 
           className="flex items-center gap-2 bg-white text-green-700 font-semibold px-5 py-3 rounded-md hover:bg-green-100 transition"
         >
           <Play className="w-4 h-4" />
           Veja Nosso Trabalho
         </Link>
         <Link
-          href="#Contato" 
+          href="#contato" 
           className="border border-white px-5 py-3 rounded-md font-semibold hover:bg-white hover:text-green-700 transition"
         >
           Começar Projeto
